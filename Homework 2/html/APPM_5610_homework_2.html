@@ -1,0 +1,423 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>APPM_5610_homework_2</title><meta name="generator" content="MATLAB 9.11"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2022-02-03"><meta name="DC.source" content="APPM_5610_homework_2.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; }
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+span.typesection { color:#A0522D }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><pre class="codeinput">clc;
+clear;
+
+n_max = 16;
+max_iters = 100;
+
+actual_evals = zeros(n_max-1, 1);
+dom_evals    = zeros(n_max-1, 1);
+dom_evecs    = zeros(n_max-1, n_max-1);
+
+<span class="keyword">for</span> n = 2:n_max
+    H = hilb(n);
+
+    [V, D] = eigs(H);
+
+    z_0 = zeros(length(H), 1); z_0(1) = 1;
+    [lambda, v] = power_method(H, z_0, max_iters);
+
+    actual_evals(n-1) = D(1, 1);
+    dom_evals(n-1)    = lambda;
+    dom_evecs(1:n, n-1) = v;
+
+<span class="keyword">end</span>
+
+disp(<span class="string">"Actual eigenvalues and computed eigenvalues of Hilbert matrix"</span>);
+fprintf(<span class="string">"\t\tn\t\t\t\tActual eigenvalues\t Computed eigenvalues\n"</span>);
+disp([(2:n_max)', actual_evals, dom_evals]);
+fprintf(<span class="string">"\n\nCorresponding computed eigenvectors\n"</span>);
+disp(dom_evecs);
+
+<span class="comment">% Run the modified power iteration to obtain the smallest eigenvalues of</span>
+<span class="comment">% the Hilbert matrix</span>
+
+actual_smallest_evals = zeros(n_max-1, 1);
+smallest_evals        = zeros(n_max-1, 1);
+
+disp(<span class="string">"Actual smallest eigenvalues and computed smallest eigenvalues of Hilbert matrix"</span>);
+fprintf(<span class="string">"\t\tn\t\t\t\tActual smallest eigenvalues\t Computed smallest eigenvalues\n"</span>);
+
+<span class="keyword">for</span> n = 2:n_max
+    H = hilb(n);
+    [V, D] = eigs(H, n);
+
+    z_0 = zeros(length(H), 1); z_0(1) = 1;
+    [lambda_2, ~] = power_method_inv(H, z_0, max_iters);
+
+    disp([n, lambda_2, min(diag(D))]);
+<span class="keyword">end</span>
+
+<span class="comment">%</span>
+<span class="comment">% A = diag([1, -1, 0.5]);</span>
+<span class="comment">% [l_1, v_1] = power_method(A^2, max_iters);</span>
+<span class="comment">% [l_2, v_2] = power_method(A^2, max_iters);</span>
+<span class="comment">%</span>
+<span class="comment">% disp([v_1, v_2]);</span>
+
+<span class="comment">% A = rand(9);</span>
+<span class="comment">% A = triu(A) - diag(diag(A)) + diag([1, 1, 1, 1, 1, 1, 1, 1, 1e-2]);</span>
+<span class="comment">%</span>
+<span class="comment">% V = zeros(length(A)-1, 1);</span>
+<span class="comment">% D = zeros(length(A), 8);</span>
+<span class="comment">% I = eye(size(A));</span>
+<span class="comment">%</span>
+<span class="comment">% for i = 1:8</span>
+<span class="comment">%     z_0 = I(:, i);</span>
+<span class="comment">%     [lambda, v] = power_method(A, z_0, max_iters + 1000);</span>
+<span class="comment">%     V(i) = lambda;</span>
+<span class="comment">%     D(:, i) = v;</span>
+<span class="comment">% end</span>
+<span class="comment">%</span>
+<span class="comment">%</span>
+<span class="comment">% disp([A*D(:, 2), V(2)*D(:, 2)]);</span>
+
+
+<span class="keyword">function</span> [lambda, v] = power_method(A, z_0, max_iters)
+
+    <span class="keyword">for</span> k = 1:max_iters
+        z_k = A*z_0;
+        q_k = z_k/norm(z_k);
+        lambda = dot(q_k, A*q_k);
+        z_0 = z_k;
+    <span class="keyword">end</span>
+
+    v = q_k;
+<span class="keyword">end</span>
+
+<span class="keyword">function</span> [lambda, v] = power_method_inv(A, z_0, max_iters)
+    [largest_e_val, ~] = power_method(A, z_0, max_iters);
+
+    A_tilde = A - largest_e_val*eye(size(A));
+
+    <span class="keyword">for</span> k = 1:max_iters
+        z_k = A_tilde*z_0;
+        q_k = z_k/norm(z_k);
+        lambda = dot(q_k, A_tilde*q_k);
+        z_0 = z_k;
+    <span class="keyword">end</span>
+
+    lambda = lambda + largest_e_val;
+    v = q_k;
+<span class="keyword">end</span>
+</pre><pre class="codeoutput">Actual eigenvalues and computed eigenvalues of Hilbert matrix
+		n				Actual eigenvalues	 Computed eigenvalues
+   2.000000000000000   1.267591879243998   1.267591879243999
+   3.000000000000000   1.408318927123654   1.408318927123654
+   4.000000000000000   1.500214280059243   1.500214280059243
+   5.000000000000000   1.567050691098231   1.567050691098231
+   6.000000000000000   1.618899858924339   1.618899858924339
+   7.000000000000000   1.660885338926931   1.660885338926931
+   8.000000000000000   1.695938996921948   1.695938996921950
+   9.000000000000000   1.725882660901847   1.725882660901847
+  10.000000000000000   1.751919670265177   1.751919670265178
+  11.000000000000000   1.774883179499381   1.774883179499381
+  12.000000000000000   1.795372059561997   1.795372059561997
+  13.000000000000000   1.813830118796977   1.813830118796977
+  14.000000000000000   1.830594695920393   1.830594695920394
+  15.000000000000000   1.845927746153488   1.845927746153487
+  16.000000000000000   1.860036442743326   1.860036442743327
+
+
+
+Corresponding computed eigenvectors
+  Columns 1 through 3
+
+   0.881674598767944   0.827044926972009   0.792608291163764
+   0.471857925532024   0.459863904365544   0.451923120901600
+                   0   0.323298435244499   0.322416398581825
+                   0                   0   0.252161169688242
+                   0                   0                   0
+                   0                   0                   0
+                   0                   0                   0
+                   0                   0                   0
+                   0                   0                   0
+                   0                   0                   0
+                   0                   0                   0
+                   0                   0                   0
+                   0                   0                   0
+                   0                   0                   0
+                   0                   0                   0
+                   0                   0                   0
+
+  Columns 4 through 6
+
+   0.767854735065807   0.748719218879095   0.733225603080613
+   0.445791060462709   0.440717503243512   0.436359150069654
+   0.321578294480220   0.320696869822252   0.319779114044051
+   0.253438943245175   0.254311386340474   0.254885556321454
+   0.209822636563631   0.211530840078965   0.212844074668574
+                   0   0.181442976648769   0.183143115876329
+                   0                   0   0.160939670445336
+                   0                   0                   0
+                   0                   0                   0
+                   0                   0                   0
+                   0                   0                   0
+                   0                   0                   0
+                   0                   0                   0
+                   0                   0                   0
+                   0                   0                   0
+                   0                   0                   0
+
+  Columns 7 through 9
+
+   0.720271369439766   0.709181673545698   0.699514891247007
+   0.432526015446475   0.429099404025192   0.425998912750593
+   0.318843646420194   0.317905990066158   0.316976987916454
+   0.255242887149454   0.255441586730359   0.255523005939058
+   0.213861951108334   0.214656002709988   0.215277839514775
+   0.184519788905940   0.185646845839823   0.186578238283591
+   0.162514374457332   0.163832328894961   0.164946526309270
+   0.145343694357308   0.146769904688278   0.147992143235347
+                   0   0.133026481716317   0.134310446361981
+                   0                   0   0.123016712833186
+                   0                   0                   0
+                   0                   0                   0
+                   0                   0                   0
+                   0                   0                   0
+                   0                   0                   0
+                   0                   0                   0
+
+  Columns 10 through 12
+
+   0.690967022219495   0.683320332980505   0.676413810285274
+   0.423166915294328   0.420560375555992   0.418146135572765
+   0.316063689551723   0.315170440634100   0.314299742629568
+   0.255516792083251   0.255444491435235   0.255321987188084
+   0.215765222817530   0.216146230854872   0.216442076211893
+   0.187353973498587   0.188004207938112   0.188552035725572
+   0.165896666582998   0.166712975590447   0.167418826249705
+   0.149048683067852   0.149968894636363   0.150775661872475
+   0.135430727654193   0.136415432471856   0.137286595261618
+   0.124173014540756   0.125196312973031   0.126107640595545
+   0.114697309959483   0.115741728398817   0.116676703819235
+                   0   0.107656409926997   0.108603548511526
+                   0                   0   0.101607996027037
+                   0                   0                   0
+                   0                   0                   0
+                   0                   0                   0
+
+  Columns 13 through 15
+
+   0.670125208584176   0.664359644626561   0.659042077332539
+   0.415898015563803   0.413794933147330   0.411819631422644
+   0.313452862688510   0.312630251060571   0.311831823367739
+   0.255161147889428   0.254970953283049   0.254758273966824
+   0.216669024253455   0.216839717460734   0.216964104228668
+   0.189015404362822   0.189408449910796   0.189742442594352
+   0.168032553618079   0.168568730094388   0.169039075659429
+   0.151487066617891   0.152117579820088   0.152678917240549
+   0.138061729038196   0.138754928128587   0.139377664467761
+   0.126923795796249   0.127658360865445   0.128322440217573
+   0.117518265401015   0.118279424744030   0.118970859915509
+   0.109459554540885   0.110236853081041   0.110945674034342
+   0.102470633381607   0.103256551896694   0.103975532710293
+   0.096346867680367   0.097135934951716   0.097859772735758
+                   0   0.091721739694777   0.092446507883094
+                   0                   0   0.087618467755674
+
+Actual smallest eigenvalues and computed smallest eigenvalues of Hilbert matrix
+		n				Actual smallest eigenvalues	 Computed smallest eigenvalues
+   2.000000000000000   0.065741454089335   0.065741454089335
+
+   3.000000000000000   0.002687381641412   0.002687340355773
+
+   4.000000000000000   0.006336016073612   0.000096702304023
+
+   5.000000000000000   0.009521353380193   0.000003287928772
+
+   6.000000000000000   0.011164257025210   0.000000108279948
+
+   7.000000000000000   0.011014567912347   0.000000003493899
+
+   8.000000000000000   0.009736752934525   0.000000000111154
+
+   9.000000000000000   0.008209232928134   0.000000000003500
+
+  10.000000000000000   0.006950412341298   0.000000000000109
+
+  11.000000000000000   0.006103781087902   0.000000000000003
+
+  12.000000000000000   0.005628391022755   0.000000000000000
+
+  13.000000000000000   0.005433514672554   0.000000000000000
+
+  14.000000000000000   0.005433855752781  -0.000000000000000
+
+  15.000000000000000   0.005563536430085  -0.000000000000000
+
+  16.000000000000000   0.005775344100157  -0.000000000000000
+
+</pre><p class="footer"><br><a href="https://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2021b</a><br></p></div><!--
+##### SOURCE BEGIN #####
+clc;
+clear;
+
+n_max = 16;
+max_iters = 100;
+
+actual_evals = zeros(n_max-1, 1); 
+dom_evals    = zeros(n_max-1, 1);
+dom_evecs    = zeros(n_max-1, n_max-1);
+
+for n = 2:n_max
+    H = hilb(n);
+     
+    [V, D] = eigs(H);
+    
+    z_0 = zeros(length(H), 1); z_0(1) = 1;
+    [lambda, v] = power_method(H, z_0, max_iters);
+
+    actual_evals(n-1) = D(1, 1); 
+    dom_evals(n-1)    = lambda;
+    dom_evecs(1:n, n-1) = v;
+
+end
+
+disp("Actual eigenvalues and computed eigenvalues of Hilbert matrix");
+fprintf("\t\tn\t\t\t\tActual eigenvalues\t Computed eigenvalues\n");
+disp([(2:n_max)', actual_evals, dom_evals]);
+fprintf("\n\nCorresponding computed eigenvectors\n");
+disp(dom_evecs);
+
+% Run the modified power iteration to obtain the smallest eigenvalues of
+% the Hilbert matrix
+
+actual_smallest_evals = zeros(n_max-1, 1);
+smallest_evals        = zeros(n_max-1, 1);
+
+disp("Actual smallest eigenvalues and computed smallest eigenvalues of Hilbert matrix");
+fprintf("\t\tn\t\t\t\tActual smallest eigenvalues\t Computed smallest eigenvalues\n");
+
+for n = 2:n_max
+    H = hilb(n);
+    [V, D] = eigs(H, n);
+
+    z_0 = zeros(length(H), 1); z_0(1) = 1;
+    [lambda_2, ~] = power_method_inv(H, z_0, max_iters);
+    
+    disp([n, lambda_2, min(diag(D))]);
+end
+
+% 
+% A = diag([1, -1, 0.5]);
+% [l_1, v_1] = power_method(A^2, max_iters);
+% [l_2, v_2] = power_method(A^2, max_iters);
+% 
+% disp([v_1, v_2]);
+
+% A = rand(9);
+% A = triu(A) - diag(diag(A)) + diag([1, 1, 1, 1, 1, 1, 1, 1, 1e-2]);
+% 
+% V = zeros(length(A)-1, 1);
+% D = zeros(length(A), 8);
+% I = eye(size(A));
+% 
+% for i = 1:8
+%     z_0 = I(:, i);
+%     [lambda, v] = power_method(A, z_0, max_iters + 1000);
+%     V(i) = lambda;
+%     D(:, i) = v;
+% end
+% 
+% 
+% disp([A*D(:, 2), V(2)*D(:, 2)]);
+
+
+function [lambda, v] = power_method(A, z_0, max_iters)
+
+    for k = 1:max_iters
+        z_k = A*z_0;
+        q_k = z_k/norm(z_k);
+        lambda = dot(q_k, A*q_k);
+        z_0 = z_k;
+    end
+
+    v = q_k;
+end
+
+function [lambda, v] = power_method_inv(A, z_0, max_iters)
+    [largest_e_val, ~] = power_method(A, z_0, max_iters);
+
+    A_tilde = A - largest_e_val*eye(size(A));
+
+    for k = 1:max_iters
+        z_k = A_tilde*z_0;
+        q_k = z_k/norm(z_k);
+        lambda = dot(q_k, A_tilde*q_k);
+        z_0 = z_k;
+    end
+
+    lambda = lambda + largest_e_val;
+    v = q_k;
+end
+##### SOURCE END #####
+--></body></html>

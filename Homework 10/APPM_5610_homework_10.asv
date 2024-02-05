@@ -1,0 +1,42 @@
+clc;
+clear;
+close all;
+
+PI = 2*asin(1);
+
+m = 7;
+n = 2^(m) - 1;
+
+a = 0;
+b = 1;
+x = linspace(a, b, n)'; y = x;
+[X, Y] = meshgrid(x, y);
+
+f = @(x, y) sin(PI*x).*sin(2*PI*y);
+
+f_eval = f(X, Y);
+f_eval_dst_yx = dst(dst(f_eval).').';
+
+% Compute the Fourier coefficients of the solution
+p = (1:n)'; q = p;
+[P, Q] = meshgrid(p, q);
+mat = P.^(2) + Q.^(2);
+
+u_hat = (-1/PI^(2))*f_eval_dst_yx./mat;
+
+u = (1/())*idst(idst(u_hat).').';
+
+u_eval = zeros(size(f_eval));
+for i = 1:n
+    for j = 1:n
+        u_eval = u_eval + u_hat(i, j)*sin(i*PI*X).*sin(j*PI*Y);
+    end
+end
+
+figure;
+surf(X, Y, f_eval);
+colorbar;
+
+figure;
+surf(X, Y, u_eval);
+colorbar;
